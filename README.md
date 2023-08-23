@@ -1,1 +1,1 @@
-<h1 align="center">RAS Uniandes  - Zeta (Mini-Sumo 🤖)</h1>
+<h1 align="center">RAS Uniandes  - Omicron (Mini-Sumo 🤖)</h1>
