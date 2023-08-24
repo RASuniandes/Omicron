@@ -136,17 +136,5 @@ void setup() {
 
 
 void loop() {
-  delay(2000);
-  Fordward();
-
-  //digitalWrite(motor2_pin,HIGH);
-  //digitalWrite(motor2_pin_inv,LOW);
-  //digitalWrite(motor_pin,HIGH);
-  //digitalWrite(motor_pin_inv,LOW);
-
-  Serial.println("adelante");
-  delay(2000);
-  STOP();
-  
-  delay(2000);
+  tracking3();
 }
