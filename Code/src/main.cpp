@@ -1,73 +1,54 @@
 #include <Arduino.h>
 #include "Qtr.h"
 #include "Motor.h"
-
-
-Qtr qtr_left(5);
-Qtr qtr_right(6);
-
-const int pin_sharp_front = 25;
-const int pin_sharp_left = 35;
-const int pin_sharp_rigth = 34;
-bool comments = true;
+#include "Sharp.h"
 
 //Qtr - Blanco/negro
 
+Qtr qtr_left(4);
+Qtr qtr_right(5);
+
+// Sharps sensors
+Sharp s1(18, -50); //Sensor_1
+Sharp s2(19, -25); //Sensor_2
+Sharp s3(13, 0); //Sensor_3
+Sharp s4(25, 25); //Sensor_4
+Sharp s5(23, 50); //Sensor_5
+
+
 //Motores
-int motor_pin = 26;
-int motor_pin_inv = 27;
-int motor2_pin = 33;
-int motor2_pin_inv = 32;
 
 Motor motor_a(26,27);
 Motor motor_b(33,32);
 
+boolean comments=true;
 
 void Backward(){
-  digitalWrite(motor_pin,HIGH);
-  digitalWrite(motor2_pin,HIGH);
-  digitalWrite(motor_pin_inv,LOW);
-  digitalWrite(motor2_pin_inv,LOW);
+  motor_a.setSpeed(-255);
+  motor_b.setSpeed(-255);
 }
-
 void Twice_left(){
-  digitalWrite(motor_pin,LOW);
-  digitalWrite(motor2_pin,HIGH);
-  digitalWrite(motor_pin_inv,HIGH);
-  digitalWrite(motor2_pin_inv,LOW);
+  motor_a.setSpeed(255);
+  motor_b.setSpeed(-255);
+
 }
-
 void Twice_right(){
-  digitalWrite(motor_pin,HIGH);
-  digitalWrite(motor_pin_inv,LOW);
-  digitalWrite(motor2_pin,LOW);
-  digitalWrite(motor2_pin_inv,HIGH);
+  motor_a.setSpeed(-255);
+  motor_b.setSpeed(255);
 }  
-
 void Fordward(){
-  digitalWrite(motor_pin,LOW);
-  digitalWrite(motor2_pin,LOW);
-  digitalWrite(motor_pin_inv,HIGH);
-  digitalWrite(motor2_pin_inv,HIGH);
+  motor_a.setSpeed(255);
+  motor_b.setSpeed(255);
 }
 void STOP(){
-  digitalWrite(motor_pin,LOW);
-  digitalWrite(motor2_pin,LOW);
-  digitalWrite(motor_pin_inv,LOW);
-  digitalWrite(motor2_pin_inv,LOW);
+  motor_a.setSpeed(0);
+  motor_b.setSpeed(0);
 }
 
 
 void setup() {
   // put your setup code here, to run once:
 
-    pinMode(motor_pin,OUTPUT);
-    pinMode(motor2_pin,OUTPUT);
-    pinMode(motor_pin_inv,OUTPUT);
-    pinMode(motor2_pin_inv,OUTPUT);
-    pinMode(pin_sharp_front,INPUT);
-    pinMode(pin_sharp_left,INPUT);
-    pinMode(pin_sharp_rigth,INPUT);
     if ( comments == true){
       Serial.begin(9600);
     }
