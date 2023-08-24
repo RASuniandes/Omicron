@@ -75,8 +75,53 @@ void STOP(){
 float ponderacion(){
 
   posicion=s1.calculateDegree()+s2.calculateDegree()+s3.calculateDegree()+s4.calculateDegree()+s5.calculateDegree();
+  Serial.println(posicion);
   return posicion;
 }
+
+void motores(int speed_m_left, int speed_m_right){
+  motor_a.setSpeed(speed_m_left);
+  motor_b.setSpeed(speed_m_right);
+
+}
+
+
+void tracking3() // envestida
+{
+  posicion=ponderacion();
+  proporcional=(posicion) - 10;
+  integral=integral+proporcional_pasado;
+  derivativo=(proporcional-proporcional_pasado);
+  int ITerm=integral*KI;
+  if(ITerm>=250)ITerm=250;
+  if(ITerm<=-250)ITerm=-250;
+ 
+  salida_control=(proporcional*KP)+(derivativo*KD)+ITerm;
+ 
+  if(salida_control>velocidad) salida_control=velocidad;
+  if(salida_control<-velocidad) salida_control=-velocidad;
+
+                     
+  if(salida_control<0)//si se salio por la izquierda
+  {
+ 
+    motores(velocidad,velocidad+salida_control);
+  }
+  if(salida_control>0)//si se salio por la derecha
+  {
+     motores(velocidad-salida_control , velocidad);
+  }
+   if(salida_control==0)//si se salio por la derecha
+  {
+     motores(velocidad , velocidad);
+  }
+
+  // Serial.println(salida_control);
+  proporcional_pasado=proporcional;
+ 
+}
+
+
 
 void setup() {
   // put your setup code here, to run once:
