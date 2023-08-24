@@ -85,9 +85,7 @@ void motores(int speed_m_left, int speed_m_right){
 
 }
 
-
-void tracking3() // envestida
-{
+int PID(){
   posicion=ponderacion();
   proporcional=(posicion) - 10;
   integral=integral+proporcional_pasado;
@@ -96,7 +94,16 @@ void tracking3() // envestida
   if(ITerm>=250)ITerm=250;
   if(ITerm<=-250)ITerm=-250;
  
-  salida_control=(proporcional*KP)+(derivativo*KD)+ITerm;
+  int PID=(proporcional*KP)+(derivativo*KD)+ITerm;
+  return PID;
+
+}
+
+
+void tracking() // envestida
+{
+
+  salida_control=PID();
  
   if(salida_control>velocidad) salida_control=velocidad;
   if(salida_control<-velocidad) salida_control=-velocidad;
@@ -121,6 +128,44 @@ void tracking3() // envestida
  
 }
 
+void test_tracking(){
+  salida_control=PID();
+  Serial.println("test_tracking");
+  Serial.println(salida_control);
+
+
+  
+  if(salida_control>velocidad) salida_control=velocidad;
+  if(salida_control<-velocidad) salida_control=-velocidad;
+
+   Serial.println("velocity adjusted");
+   Serial.println(salida_control);
+
+                     
+  if(salida_control<0)//si se salio por la izquierda
+  {
+    Serial.print("left: ");
+    Serial.println(velocidad);
+    Serial.print("right: ");
+    Serial.println(velocidad+salida_control);
+
+  }
+  if(salida_control>0)//si se salio por la derecha
+  {
+
+    Serial.print("left: ");
+    Serial.println(velocidad-salida_control);
+    Serial.print("right: ");
+    Serial.println(velocidad);
+  }
+   if(salida_control==0)//si se salio por la derecha
+  {
+    Serial.print("left: ");
+    Serial.println(velocidad-salida_control);
+    Serial.print("right: ");
+    Serial.println(velocidad);;
+  }
+}
 
 
 void setup() {
@@ -138,5 +183,5 @@ void setup() {
 
 
 void loop() {
-  tracking3();
+  test_tracking();
 }
