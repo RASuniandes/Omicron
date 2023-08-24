@@ -23,6 +23,32 @@ Motor motor_b(33,32);
 
 boolean comments=true;
 
+
+////////////////////Constantes PID////////////////////////
+int velocidad=255; //aqui cambias velocidad  0-100        //
+float KP=35.78;  //25.78  , 35.78                               //
+float KD=110;     //20     ,50                           //
+float KI=0;     //       ,0                            //
+                          //
+////////////////////////////////////////////////////////
+ 
+/////////////Otras Variables auxiliares///////////////////////////////////////
+  int _numSensors=5; //cantidad de sensores usados
+  int sensors_values[5]; //numero de sensores usados
+  int last_value=0;
+ 
+  int btn1=0,btn2=0,btn3=0;
+  int s1_value=0,s2_value=0,s3_value=0,s_value4=0;
+  int posicion;
+  int proporcional=0;
+  int integral=0;
+  int derivativo=0;
+  int proporcional_pasado=0;
+  int salida_control=0;
+  int caso=0;
+//////////////////////////////////////////////////////
+
+
 void Backward(){
   motor_a.setSpeed(-255);
   motor_b.setSpeed(-255);
@@ -46,6 +72,12 @@ void STOP(){
 }
 
 
+float ponderacion(){
+
+  posicion=s1.calculateDegree()+s2.calculateDegree()+s3.calculateDegree()+s4.calculateDegree()+s5.calculateDegree();
+  return posicion;
+}
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -54,6 +86,9 @@ void setup() {
     }
     
 }
+
+
+
 
 void loop() {
   delay(2000);
