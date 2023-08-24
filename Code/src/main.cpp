@@ -129,6 +129,8 @@ void setup() {
     if ( comments == true){
       Serial.begin(9600);
     }
+    STOP();
+    delay(2000);
     
 }
 
