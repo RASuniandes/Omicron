@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Qtr.h"
+#include "Motor.h"
 
 
 Qtr qtr_left(5);
@@ -17,6 +18,9 @@ int motor_pin = 26;
 int motor_pin_inv = 27;
 int motor2_pin = 33;
 int motor2_pin_inv = 32;
+
+Motor motor_a(26,27);
+Motor motor_b(33,32);
 
 
 void Backward(){
