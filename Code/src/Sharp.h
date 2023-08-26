@@ -11,7 +11,8 @@ private:
 public:
     Sharp(int pinNumber, int reference);
     int readValue();
-    int calculateDegree();
+    float calculateDegree();
+    int getDegree();
 };
 
 #endif
