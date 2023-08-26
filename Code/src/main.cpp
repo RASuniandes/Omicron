@@ -23,7 +23,7 @@ Motor motor_b(33,32);
 
 
 //Starter 
-Starter start(14);
+Starter start(21,14);
 
 //Comentarios
 boolean comments=true;
@@ -122,7 +122,9 @@ void show_sensors(){
   Serial.println(s5.readValue());
   Serial.print("Starter: ");
   Serial.println(start.getStart());
-  delay(100);
+  Serial.print("Stop: ");
+  Serial.println(start.getStop());
+  delay(1000);
 
 
 }

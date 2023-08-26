@@ -5,11 +5,13 @@
 
 class Starter {
 private:
-    int pin;
+    int pinStart;
+    int pinStop;
 
 public:
-    Starter(int pinNumber);
+    Starter(int pinStartNumber, int pinStopNumber);
     int getStart();
+    int getStop();
 };
 
 #endif

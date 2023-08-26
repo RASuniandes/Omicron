@@ -1,10 +1,16 @@
 #include "Starter.h"
 
-Starter::Starter(int pinNumber) : pin(pinNumber) {
-    pinMode(pin, INPUT);
+Starter::Starter(int pinStartNumber, int pinStopNumber) : pinStart(pinStartNumber), pinStop(pinStopNumber) {
+    pinMode(pinStart, INPUT);
+    pinMode(pinStop, INPUT);
 }
 
 int Starter::getStart() {
-    int value = digitalRead(pin);
-    return value;
+    int startValue = digitalRead(pinStart);
+    return startValue;
+}
+
+int Starter::getStop() {
+    int stopValue = digitalRead(pinStop);
+    return stopValue;
 }
