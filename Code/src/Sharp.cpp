@@ -21,3 +21,7 @@ float Sharp::calculateDegree() {
 
     return peso;
 }
+
+int Sharp::getDegree() {
+    return referenceDegree;
+}

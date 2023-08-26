@@ -2,18 +2,18 @@
 #include "Qtr.h"
 #include "Motor.h"
 #include "Sharp.h"
-
+#include "Starter.h"
 //Qtr - Blanco/negro
 
 Qtr qtr_left(4);
-Qtr qtr_right(5);
+Qtr qtr_right(25);
 
 // Sharps sensors
 Sharp s1(18, -50); //Sensor_1
 Sharp s2(19, -25); //Sensor_2
 Sharp s3(13, 0); //Sensor_3
-Sharp s4(25, 25); //Sensor_4
-Sharp s5(23, 50); //Sensor_5
+Sharp s4(23, 25); //Sensor_4
+Sharp s5(5, 50); //Sensor_5
 
 
 //Motores
@@ -21,6 +21,11 @@ Sharp s5(23, 50); //Sensor_5
 Motor motor_a(26,27);
 Motor motor_b(33,32);
 
+
+//Starter 
+Starter start(14);
+
+//Comentarios
 boolean comments=true;
 
 
@@ -40,7 +45,7 @@ float KI=0;     //       ,0                            //
   int btn1=0,btn2=0,btn3=0;
   int s1_value=0,s2_value=0,s3_value=0,s_value4=0;
   int posicion;
-  int proporcional=0;
+  float proporcional=0;
   int integral=0;
   int derivativo=0;
   int proporcional_pasado=0;
@@ -75,6 +80,7 @@ void STOP(){
 float ponderacion(){
 
   posicion=s1.calculateDegree()+s2.calculateDegree()+s3.calculateDegree()+s4.calculateDegree()+s5.calculateDegree();
+  Serial.print("posicion: ");
   Serial.println(posicion);
   return posicion;
 }
@@ -99,7 +105,27 @@ int PID(){
 
 }
 
+void show_sensors(){
+  Serial.print("qtr_lef: ");
+  Serial.print(qtr_left.value());
+  Serial.print("  qtr_right: ");
+  Serial.print(qtr_right.value());
+  Serial.print(" s1: ");
+  Serial.print(s1.readValue());
+  Serial.print(" s2: ");
+  Serial.print(s2.readValue());
+  Serial.print(" s3: ");
+  Serial.print(s3.readValue());
+  Serial.print(" s4: ");
+  Serial.print(s4.readValue());
+  Serial.print(" s5: ");
+  Serial.println(s5.readValue());
+  Serial.print("Starter: ");
+  Serial.println(start.getStart());
+  delay(100);
 
+
+}
 void tracking() // envestida
 {
 
@@ -165,6 +191,8 @@ void test_tracking(){
     Serial.print("right: ");
     Serial.println(velocidad);;
   }
+
+  delay(1000);
 }
 
 
@@ -183,5 +211,5 @@ void setup() {
 
 
 void loop() {
-  test_tracking();
+  show_sensors();
 }
