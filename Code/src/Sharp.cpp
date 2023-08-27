@@ -6,22 +6,16 @@ Sharp::Sharp(int pinNumber, int reference) : pin(pinNumber), referenceDegree(ref
 
 int Sharp::readValue() {
     int digitalValue = digitalRead(pin);
-
-
     return digitalValue;
 }
 
-float Sharp::calculateDegree() {
+float Sharp::calculateWeigth() {
     int sensorValue = readValue();
-    // Calcula el grado de inclinación en relación con la referencia y la asigna un peso dependiendo de la posicion.
-    float angulo_desfase_rad = radians(referenceDegree);
-    float cos_angulo_desfase = cos(angulo_desfase_rad);
-
-    float peso=sensorValue*cos_angulo_desfase;
-
+    // Calcula el peso de inclinación en relación con la referencia y la asigna un peso dependiendo de la posicion.
+    float peso=sensorValue*referenceDegree*10;
     return peso;
 }
 
-int Sharp::getDegree() {
+int Sharp::getWeigth() {
     return referenceDegree;
 }
