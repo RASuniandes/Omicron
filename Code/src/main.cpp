@@ -31,11 +31,19 @@ int _numSensors=5; //cantidad de sensores usados
 int sensorValues[5];
  
 //PID
-int reference = 250;
-float Kp = 15;
-float Ki = 0; 
-float Kd = 0;
-Pid pid(Kp, Ki, Kd, 20, 250, _numSensors);
+
+
+
+
+float L=0.01;
+float T=0.1;
+float K=2.5;
+
+int reference = 80;
+float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
+float Ki = 2*L; //2L
+float Kd =0.5*L;//0.5L
+Pid pid(Kp, Ki, Kd, 20, 60, _numSensors);
 
 
 int* getSharpValues() {
@@ -49,8 +57,15 @@ int* getSharpValues() {
 }
 
 void motores(int speed_m_left, int speed_m_right){
+  Serial.print("motorA SPEED");
+  Serial.println(speed_m_left);
+
+  Serial.print("motorB SPEED");
+  Serial.println(speed_m_right);
+
   motor_a.setSpeed(speed_m_left);
   motor_b.setSpeed(speed_m_right);
+  //delay(300);
 }
 
 
@@ -73,10 +88,12 @@ void show_sensors(){
   Serial.println(start.getStart());
   Serial.print("Stop: ");
   Serial.println(start.getStop());
-  delay(1000);
+  //delay(1000);
 
 
 }
+
+
 
 
 void setup() {
@@ -90,13 +107,17 @@ void setup() {
 
 
 void loop() {
-  // show_sensors();
+  
   int* values = getSharpValues();
-  float salida_control = pid.traking(values);
-  delay(500);
 
-  // Serial.print("Salida de control:");
-  // Serial.println(salida_control);
+  //Serial.print("Sensores: ");
+  //show_sensors();
+
+  float salida_control = pid.traking(values);
+ 
+
+  Serial.print("Salida de control:");
+  Serial.println(salida_control);
   // delay(500);
   // if (start.getStart()==HIGH && start.getStop()==LOW){
     // motores(-255,-255);
@@ -107,14 +128,17 @@ void loop() {
   // }
 
   if(salida_control<0) { 
-    motors(reference+salida_control, reference);
+    motores(reference-salida_control, reference);
   }
 
   if(salida_control>0) { 
-    motores(reference, reference-salida_control);
+    motores(reference, reference+salida_control);
   }
 
   if(salida_control==0) {  
     motores(reference , reference);
   }
+  Serial.println("");
+  //delay(300);
+
 }
