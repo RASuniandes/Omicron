@@ -46,9 +46,9 @@ float K=2.5;
 
 int reference = 120;
 int z=20;
-float Kp = 35.78;//1.2*(T/(K*L)); //1.2 *(T)/KL
-float Ki = 0.01; //2L
-float Kd =110;//0.5L
+float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
+float Ki = 2*L; //2L
+float Kd =0.5*L;//0.5L
 
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
