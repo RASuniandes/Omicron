@@ -34,6 +34,9 @@ int sensorValues[5];
 unsigned long time_motores = 0;
 bool get_in = false;
 
+int time_backward=1500;
+int time_backward_twist=700;
+int velocity_backward=150;
 
 
 
@@ -41,11 +44,14 @@ float L=0.01;
 float T=0.1;
 float K=2.5;
 
-int reference = 60;
-float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
-float Ki = 2*L; //2L
-float Kd =0.5*L;//0.5L
-Pid pid(Kp, Ki, Kd, 20, 60, _numSensors);
+int reference = 120;
+int z=20;
+float Kp = 35.78;//1.2*(T/(K*L)); //1.2 *(T)/KL
+float Ki = 0.01; //2L
+float Kd =110;//0.5L
+
+
+Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
 
 int* getSharpValues() {
@@ -95,51 +101,77 @@ void show_sensors(){
 
 }
 
+
+
 void getIn(){
 
   get_in = true;
+  unsigned long startTime = millis();
+
+
 
   if (qtr_right.value() == 0 && qtr_left.value() ==1) {
-    //Backward
-    if (millis() <= time_motores + 400) {
-      motores(-reference,-reference);
-    } 
-    //Twice_left
-    if (millis() > time_motores + 400 && millis() < time_motores + 600) {
-      motores(reference,reference);
+    Serial.println("qtr_right");
+
+    while (millis() - startTime < 1500){
+
+
+      if (millis() - startTime < 500) {
+        motores(-255,-255);
+      // Código para el primer intervalo de 2 segundos
+      } else {
+        // Código para el intervalo restante de 1 segundo
+        motores(-reference,-(reference-30));
+
+      }
+      
+      
+  
     }
-    if (millis() == time_motores + 600){
-      get_in = false;
+    //Backward
+   
     }
         
-  } else if (qtr_right.value() == 1 && qtr_left.value() ==0) {
-    //Backward
-    if (millis() <= time_motores + 400) {
-      motores(-reference,-reference);
-    } 
-    //Twice_right();
-    if (millis() > time_motores + 400 && millis() < time_motores + 600) {
-      motores(-reference,reference);
-    }
-    if (millis() == time_motores + 600){
-      get_in = false;
+   else if (qtr_right.value() == 1 && qtr_left.value() ==0) {
+     Serial.println("qtr_left");
+     while (millis() - startTime < time_backward){
+
+
+      if (millis() - startTime < time_backward_twist) {
+        motores(-250,-250);
+      // Código para el primer intervalo de 2 segundos
+      } else {
+        // Código para el intervalo restante de 1 segundo
+        motores(-(velocity_backward-30),-(velocity_backward));
+
+      }
+ 
+ 
+     }
     }
 
-  } else if (qtr_right.value() == 0 && qtr_left.value() == 0){
+   else if (qtr_right.value() == 0 && qtr_left.value() == 0){
+
+     Serial.println("atras");
+     while (millis() - startTime < time_backward_twist){
+
+
+      if (millis() - startTime < 300) {
+        motores(-255,-255);
+      // Código para el primer intervalo de 2 segundos
+      } else {
+        // Código para el intervalo restante de 1 segundo
+        motores(-(velocity_backward-30),-(velocity_backward));
+
+      }
+
+    
     //Backward
-    if (millis() <= time_motores + 400) {
-      motores(-reference,-reference);
-    } 
-    //Twice_right();
-    if (millis() > time_motores + 400 && millis() < time_motores + 800) {
-      motores(reference,reference);
-    }
-    if (millis() == time_motores + 800){
-      get_in = false;
-    }
-  }
+    
   
 
+      }
+    }
 }
 
 
@@ -165,15 +197,15 @@ void tracking(){
       // }
 
       if(salida_control<0) { 
-        motores(-(reference+salida_control), (reference-salida_control));
+        motores((salida_control+z), (reference+z));
       }
 
       if(salida_control>0) { 
-        motores(reference+salida_control,-(reference-salida_control));
+        motores(reference-z,-(salida_control-z));
       }
 
       if(salida_control==0) {  
-        motores(reference , reference);
+        motores(255 , 255);
       }
       Serial.println("");
       delay(300);
@@ -188,10 +220,15 @@ void gameStart(){
    
   }
   else{
+
+    Serial.println("Get in");
     getIn();
-  
+
+    
+    } 
+    
   }
-}
+
 
 
 void setup() {
@@ -206,7 +243,12 @@ void setup() {
 
 void loop() {
 
+  if (start.getStart()==1)
+    //gameStart();
+    tracking();
 
-  tracking();
+  else{
+    motores(0,0);
+  }
 
 }
