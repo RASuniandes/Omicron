@@ -17,8 +17,8 @@ Sharp s4(23, 3); //Sensor_4
 Sharp s5(5, 4); //Sensor_5
 
 //Motores
-Motor motor_a(27,226);
-Motor motor_b(32,33);
+Motor motor_b(27,26);
+Motor motor_a(32,33);
 
 //Starter 
 Starter start(21,14);
@@ -41,7 +41,7 @@ float L=0.01;
 float T=0.1;
 float K=2.5;
 
-int reference = 80;
+int reference = 60;
 float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 float Ki = 2*L; //2L
 float Kd =0.5*L;//0.5L
@@ -143,10 +143,9 @@ void getIn(){
 }
 
 
-void gameStart(){
-  if(qtr_left.value()==1 && qtr_right.value()==1){
 
-      int* values = getSharpValues();
+void tracking(){
+        int* values = getSharpValues();
 
       //Serial.print("Sensores: ");
       //show_sensors();
@@ -166,18 +165,25 @@ void gameStart(){
       // }
 
       if(salida_control<0) { 
-        motores(reference-salida_control, reference);
+        motores(-(reference+salida_control), (reference-salida_control));
       }
 
       if(salida_control>0) { 
-        motores(reference, reference+salida_control);
+        motores(reference+salida_control,-(reference-salida_control));
       }
 
       if(salida_control==0) {  
         motores(reference , reference);
       }
       Serial.println("");
-      //delay(300);
+      delay(300);
+
+
+
+}
+void gameStart(){
+  if(qtr_left.value()==1 && qtr_right.value()==1){
+    tracking();
 
    
   }
@@ -201,6 +207,6 @@ void setup() {
 void loop() {
 
 
-  gameStart();
+  tracking();
 
 }
