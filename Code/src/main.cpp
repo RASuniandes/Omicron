@@ -31,6 +31,8 @@ int _numSensors=5; //cantidad de sensores usados
 int sensorValues[5];
  
 //PID
+unsigned long time_motores = 0;
+bool get_in = false;
 
 
 
@@ -93,7 +95,97 @@ void show_sensors(){
 
 }
 
+void getIn(){
 
+  get_in = true;
+
+  if (qtr_right.value() == 0 && qtr_left.value() ==1) {
+    //Backward
+    if (millis() <= time_motores + 400) {
+      motores(-reference,-reference);
+    } 
+    //Twice_left
+    if (millis() > time_motores + 400 && millis() < time_motores + 600) {
+      motores(reference,reference);
+    }
+    if (millis() == time_motores + 600){
+      get_in = false;
+    }
+        
+  } else if (qtr_right.value() == 1 && qtr_left.value() ==0) {
+    //Backward
+    if (millis() <= time_motores + 400) {
+      motores(-reference,-reference);
+    } 
+    //Twice_right();
+    if (millis() > time_motores + 400 && millis() < time_motores + 600) {
+      motores(-reference,reference);
+    }
+    if (millis() == time_motores + 600){
+      get_in = false;
+    }
+
+  } else if (qtr_right.value() == 0 && qtr_left.value() == 0){
+    //Backward
+    if (millis() <= time_motores + 400) {
+      motores(-reference,-reference);
+    } 
+    //Twice_right();
+    if (millis() > time_motores + 400 && millis() < time_motores + 800) {
+      motores(reference,reference);
+    }
+    if (millis() == time_motores + 800){
+      get_in = false;
+    }
+  }
+  
+
+}
+
+
+void gameStart(){
+  if(qtr_left.value()==1 && qtr_right.value()==1){
+
+      int* values = getSharpValues();
+
+      //Serial.print("Sensores: ");
+      //show_sensors();
+
+      float salida_control = pid.traking(values);
+    
+
+      Serial.print("Salida de control:");
+      Serial.println(salida_control);
+      // delay(500);
+      // if (start.getStart()==HIGH && start.getStop()==LOW){
+        // motores(-255,-255);
+      // }
+      // else{
+
+      //   motores(0,0);
+      // }
+
+      if(salida_control<0) { 
+        motores(reference-salida_control, reference);
+      }
+
+      if(salida_control>0) { 
+        motores(reference, reference+salida_control);
+      }
+
+      if(salida_control==0) {  
+        motores(reference , reference);
+      }
+      Serial.println("");
+      //delay(300);
+
+   
+  }
+  else{
+    getIn();
+  
+  }
+}
 
 
 void setup() {
@@ -107,38 +199,8 @@ void setup() {
 
 
 void loop() {
-  
-  int* values = getSharpValues();
 
-  //Serial.print("Sensores: ");
-  //show_sensors();
 
-  float salida_control = pid.traking(values);
- 
-
-  Serial.print("Salida de control:");
-  Serial.println(salida_control);
-  // delay(500);
-  // if (start.getStart()==HIGH && start.getStop()==LOW){
-    // motores(-255,-255);
-  // }
-  // else{
-
-  //   motores(0,0);
-  // }
-
-  if(salida_control<0) { 
-    motores(reference-salida_control, reference);
-  }
-
-  if(salida_control>0) { 
-    motores(reference, reference+salida_control);
-  }
-
-  if(salida_control==0) {  
-    motores(reference , reference);
-  }
-  Serial.println("");
-  //delay(300);
+  gameStart();
 
 }
