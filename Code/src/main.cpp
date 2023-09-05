@@ -245,8 +245,9 @@ void loop() {
 
   if (start.getStart()==1)
     //gameStart();
-    tracking();
-
+    //tracking();
+    //motor_a.setSpeed(200);
+    motores(255,255);
   else{
     motores(0,0);
   }
