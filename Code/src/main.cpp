@@ -9,6 +9,9 @@
 Qtr qtr_left(4);
 Qtr qtr_right(25);
 
+int qtr_left_value;
+int qtr_right_value;
+
 // Sharps sensors
 Sharp s1(18, 0); //Sensor_1
 Sharp s2(19, 1); //Sensor_2
@@ -26,7 +29,7 @@ Motor motor_a(32,33);
 Starter start(21,14);
 
 //Comentarios
-boolean comments=true;
+bool comments= true;
 
 //Otras Variables auxiliares
 int _numSensors=5; //cantidad de sensores usados
@@ -36,22 +39,27 @@ int sensorValues[5];
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=1500; // Constante de tiempo reversa  total
-int time_backward_twist=700; // constante de tiempo del giro por lo tato menor a time_backward
+int time_backward=700; // Constante de tiempo reversa  total
+int time_backward_twist=300; // constante de tiempo del giro por lo tato menor a time_backward
 int velocity_backward=150;
 
 
 
-float L=0.01;
-float T=0.1;
-float K=2.5;
+// float L=0.01;
+// float T=0.1;
+// float K=2.5;  
 
-int reference = 120;
+int reference = 250;
 int z=20;
-float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
-float Ki = 2*L; //2L
-float Kd =0.5*L;//0.5L
-
+// float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
+// float Ki = 2*L; //2L
+// float Kd =0.5*L;//0.5L
+// float Kp = 22.5;
+// float Ki = 0;
+//float Kd = 2.5;
+float Kp = 30;
+float Ki = 0;
+float Kd = 0;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
@@ -75,15 +83,15 @@ void motores(int speed_m_left, int speed_m_right){
 
   motor_a.setSpeed(speed_m_left);
   motor_b.setSpeed(speed_m_right);
-  //delay(300);
+  
 }
 
 
 void show_sensors(){
   Serial.print("qtr_lef: ");
-  Serial.print(qtr_left.value());
+  Serial.print(qtr_left_value);
   Serial.print("  qtr_right: ");
-  Serial.print(qtr_right.value());
+  Serial.print(qtr_right_value);
   Serial.print(" s1: ");
   Serial.print(s1.readValue());
   Serial.print(" s2: ");
@@ -98,11 +106,8 @@ void show_sensors(){
   Serial.println(start.getStart());
   Serial.print("Stop: ");
   Serial.println(start.getStop());
-  //delay(1000);
-
 
 }
-
 
 
 void Twist_reverse(int direction){
@@ -121,16 +126,16 @@ void Twist_reverse(int direction){
     motorA_velocity=-velocity_backward;
     motorB_velocity=-velocity_backward+z;
 
-
   }
 
   unsigned long startTime = millis();
-  while (millis() - startTime <time_backward ){
+  while (millis() - startTime < time_backward ){
 
 
       if (millis() - startTime < (time_backward-time_backward_twist)) {
         Serial.println("atras");
-        motores(-255,-255);
+        
+        motores(-250,-250);
       // Código para el primer intervalo de reversa
       } else {
         // Código para el intervalo restante de giro en segundos
@@ -142,72 +147,67 @@ void Twist_reverse(int direction){
 }
 
 
+void getIn(int qtr_left_value, int qtr_right_value){
 
-
-void getIn(){
-
-
-  if (qtr_right.value() == 0 && qtr_left.value() ==1) {
-      Serial.println("qtr_right");
-      Twist_reverse(1);
-   
-    }
+  if (qtr_right_value == 0 && qtr_left_value ==1) {
+    Serial.println("qtr_right");
+    Twist_reverse(1); 
+  }
         
-   else if (qtr_right.value() == 1 && qtr_left.value() ==0) {
-     Serial.println("qtr_left");
-     Twist_reverse(0);
-    }
+  else if (qtr_right_value == 1 && qtr_left_value ==0) {
+    Serial.println("qtr_left");
+    Twist_reverse(0);
+  }
 
-   else if (qtr_right.value() == 0 && qtr_left.value() == 0){
+  else if (qtr_right_value == 0 && qtr_left_value == 0){
 
     Serial.println("qtr_left && qtr_right");
     Twist_reverse(1);
       
-    }
+  } else {
+    Serial.println("Caso xd que nunca pasa pero pos mejo");
+    Twist_reverse(1);
+  }
 }
-
 
 
 void tracking(){
-      int* values = getSharpValues();
-      float salida_control = pid.traking(values);    
-      Serial.print("Salida de control:");
-      Serial.println(salida_control);
+  int* values = getSharpValues();
+  int salida_control = pid.traking(values);    
+  
 
-      if(salida_control<0) { 
-        motores((salida_control), (reference));
-      }
+  if(salida_control<0) { 
 
-      if(salida_control>0) { 
-        motores(reference,-(salida_control));
-      }
+    motores( salida_control, reference );
 
-      if(salida_control==0) {  
-        motores(255 , 255);
-      }
-      Serial.println("");
+  } else if(salida_control>0) { 
+    motores(reference, -salida_control);
+
+  } else {  
+    motores(255 , 255);
     
-
-
-
+  }
 }
+
 void gameStart(){
-  if(qtr_left.value()==1 && qtr_right.value()==1){
+
+  qtr_left_value = qtr_left.value();
+  qtr_right_value = qtr_right.value();
+
+  if (qtr_left_value==1 && qtr_right_value==1){
+    
+
     tracking();
+     //motores(40, 40);
+    
 
+  } else{
+    //Serial.println("Get in");
+    getIn(qtr_left_value, qtr_right_value);
    
-  }
-  else{
-
-    Serial.println("Get in");
-    getIn();
-
-    
-    } 
-    
-  }
-
-
+ 
+  } 
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -215,25 +215,23 @@ void setup() {
     if ( comments == true){
       Serial.begin(9600);
     }
-    delay(1000); 
+     
 }
 
 
 void loop() {
-
   if (start.getStart()==1)
-<<<<<<< HEAD
-    //gameStart();
-    //tracking();
-    //motor_a.setSpeed(200);
-    motores(255,255);
-=======
+  
     gameStart();
     //tracking();
 
->>>>>>> dbdf875409494653811263a480db668d7bf05dd8
+
   else{
     motores(0,0);
   }
+
+  // show_sensors();
+
+  
 
 }

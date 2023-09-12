@@ -19,7 +19,7 @@ int Pid::calculateError(int* sensorsValues) {
         
         if (value>0) {
 
-        on_line=1;
+            on_line=1;
         
         }
 
@@ -31,11 +31,11 @@ int Pid::calculateError(int* sensorsValues) {
 
         if (last_value<1) {
 
-        return 0;
+            return 0;
         
         } else {
 
-        return(_numSensors-1)*10;
+            return(_numSensors-1)*10;
         
         }
     }
