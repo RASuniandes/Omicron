@@ -196,7 +196,6 @@ void gameStart(){
 
   if (qtr_left_value==1 && qtr_right_value==1){
     
-
     tracking();
      //motores(40, 40);
     
@@ -232,6 +231,5 @@ void loop() {
 
   // show_sensors();
 
-  
 
 }

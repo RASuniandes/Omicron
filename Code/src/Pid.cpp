@@ -12,7 +12,6 @@ int Pid::calculateError(int* sensorsValues) {
     long sum=0;
     int on_line=0;
 
-
     for (int i=0;i<_numSensors;i++) {
 
         int value=sensorsValues[i];
@@ -35,7 +34,7 @@ int Pid::calculateError(int* sensorsValues) {
         
         } else {
 
-            return(_numSensors-1)*10;
+            return setPoint;
         
         }
     }
