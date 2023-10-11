@@ -21,7 +21,7 @@ Sharp s5(5, 4); //Sensor_5
 
 //Motores
 Motor motor_b(27,26);
-Motor motor_a(32,33);
+Motor motor_a(33,32);
 
 
 
@@ -39,8 +39,8 @@ int sensorValues[5];
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=700; // Constante de tiempo reversa  total
-int time_backward_twist=300; // constante de tiempo del giro por lo tato menor a time_backward
+int time_backward=600; // Constante de tiempo reversa  total
+int time_backward_twist=400; // constante de tiempo del giro por lo tato menor a time_backward
 int velocity_backward=150;
 
 
@@ -57,7 +57,7 @@ int z=20;
 // float Kp = 22.5;
 // float Ki = 0;
 //float Kd = 2.5;
-float Kp = 30;
+float Kp = 10;
 float Ki = 0;
 float Kd = 0;
 
@@ -117,14 +117,14 @@ void Twist_reverse(int direction){
   int motorB_velocity =0;
   if (direction==1){
 
-    motorA_velocity=-velocity_backward+z;
+    motorA_velocity=-velocity_backward-40;
     motorB_velocity=-velocity_backward;
 
   }
   else{
     
     motorA_velocity=-velocity_backward;
-    motorB_velocity=-velocity_backward+z;
+    motorB_velocity=-velocity_backward-40;
 
   }
 
@@ -150,22 +150,22 @@ void Twist_reverse(int direction){
 void getIn(int qtr_left_value, int qtr_right_value){
 
   if (qtr_right_value == 0 && qtr_left_value ==1) {
-    Serial.println("qtr_right");
+    //Serial.println("qtr_right");
     Twist_reverse(1); 
   }
         
   else if (qtr_right_value == 1 && qtr_left_value ==0) {
-    Serial.println("qtr_left");
+    //Serial.println("qtr_left");
     Twist_reverse(0);
   }
 
   else if (qtr_right_value == 0 && qtr_left_value == 0){
 
-    Serial.println("qtr_left && qtr_right");
+    //Serial.println("qtr_left && qtr_right");
     Twist_reverse(1);
       
   } else {
-    Serial.println("Caso xd que nunca pasa pero pos mejo");
+    //Serial.println("Caso xd que nunca pasa pero pos mejo");
     Twist_reverse(1);
   }
 }
@@ -197,12 +197,13 @@ void gameStart(){
   if (qtr_left_value==1 && qtr_right_value==1){
     
     tracking();
-     //motores(40, 40);
+    //motores(40,40);
     
 
   } else{
     //Serial.println("Get in");
     getIn(qtr_left_value, qtr_right_value);
+   
    
  
   } 
@@ -213,23 +214,24 @@ void setup() {
 
     if ( comments == true){
       Serial.begin(9600);
-    }
+    } 
      
 }
 
 
 void loop() {
-  if (start.getStart()==1)
+  if (start.getStart()==1){
   
     gameStart();
     //tracking();
+    //motores(255, 255);
+    
 
-
-  else{
+  } else {
     motores(0,0);
   }
 
-  // show_sensors();
+  //show_sensors();
 
 
 }

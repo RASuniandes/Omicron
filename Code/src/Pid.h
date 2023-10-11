@@ -6,9 +6,9 @@
 class Pid {
 private:
     
-    int Kp;
-    int Ki;
-    int Kd;
+    float Kp;
+    float Ki;
+    float Kd;
     int _numSensors;
     int setPoint;
     int reference;
@@ -17,12 +17,12 @@ private:
     int integral;
     int derivativo;
     int proporcional_pasado;
-    int salida_control;
+    float salida_control;
     int last_value;
     
 
 public:
-    Pid(int cKp, int cKi, int cKd, int cSetPoint, int Vreference, int numSensors);
+    Pid(float cKp, float cKi, float cKd, int cSetPoint, int Vreference, int numSensors);
     float traking(int* sensors_values);
     int calculateError(int* sensors_values);
 
