@@ -4,6 +4,17 @@
 #include "Sharp.h"
 #include "Starter.h"
 #include "Pid.h"
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+
+#define UP "u"
+#define LEFT "l"
+#define DOWN "d"
+#define RIGHT "r"
+
+int command;
+int Start;
+int Accelerator;
 
 //Qtr - Blanco/negro
 Qtr qtr_left(4);
@@ -50,16 +61,16 @@ int velocity_backward=150;
 // float K=2.5;  
 
 int reference = 250;
-int z=40;
+int z=20;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 // float Ki = 2*L; //2L
 // float Kd =0.5*L;//0.5L
 // float Kp = 22.5;
 // float Ki = 0;
 //float Kd = 2.5;
-float Kp = 3;
+float Kp = 10;
 float Ki = 0;
-float Kd = 0.2;
+float Kd = 0;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
@@ -75,11 +86,11 @@ int* getSharpValues() {
 }
 
 void motores(int speed_m_left, int speed_m_right){
-  Serial.print("motorA SPEED: ");
-  Serial.println(speed_m_left);
+  //Serial.print("motorA SPEED: ");
+  //Serial.println(speed_m_left);
 
-  Serial.print("motorB SPEED: ");
-  Serial.println(speed_m_right);
+  //Serial.print("motorB SPEED: ");
+  //Serial.println(speed_m_right);
 
   motor_a.setSpeed(speed_m_left);
   motor_b.setSpeed(speed_m_right);
@@ -106,6 +117,7 @@ void show_sensors(){
   Serial.println(start.getStart());
   Serial.print("Stop: ");
   Serial.println(start.getStop());
+  Serial.print("Stop: \n\n\n\n\n\n\n\n");
 
 }
 
@@ -178,13 +190,13 @@ void tracking(){
 
   if(salida_control<0) { 
 
-    motores( salida_control - z, reference );
+    motores( salida_control, reference );
 
   } else if(salida_control>0) { 
-    motores(reference, -salida_control - z);
+    motores(reference, -salida_control);
 
   } else {  
-    motores(250 , 250);
+    motores(255 , 255);
     
   }
 }
@@ -197,12 +209,14 @@ void gameStart(){
   if (qtr_left_value==1 && qtr_right_value==1){
     
     tracking();
-    //motores(50,50);
+    //motores(40,40);
     
 
   } else{
     //Serial.println("Get in");
     getIn(qtr_left_value, qtr_right_value);
+   
+   
  
   } 
 }
@@ -213,12 +227,42 @@ void setup() {
     if ( comments == true){
       Serial.begin(9600);
     } 
+    Serial.begin(9600);
+    SerialBT.begin("ESP32test"); //Bluetooth device name
+    Serial.println("The device started, now you can pair it with bluetooth!");
+     
+}
+
+void executecommand(int command,int Accelerator){
+  Serial.print(command);
+
+  if (command == 1){
+    motores(83*(Accelerator),83*Accelerator);
+    }
+  else if (command == 2){
+    motores(0,83*(Accelerator));
+    }
+  else if (command == 3){
+    motores(83*(Accelerator),0);
+    }
+  else if (command == 4){
+    motores(-83*(Accelerator),-83*(Accelerator));
+    }
+  else if(command == 5){
+    motores(0,0);}
+  //else if(command == 9){
+    //Start = 1;}
+  //else if(command == 0){
+    //Start = 0;}
+  SerialBT.print("Accelerator: ");
+  SerialBT.print(Accelerator);
+  SerialBT.print("  command: ");
+  SerialBT.print(command);
  
 }
 
-
-void loop() {
-  if (start.getStart()==1){
+void desiciones(){
+  if (Start==1){
   
     gameStart();
     //tracking();
@@ -228,6 +272,20 @@ void loop() {
   } else {
     motores(0,0);
   }
+}
+void loop() {
+  if (SerialBT.available()) {
+    command = SerialBT.read();
+    command-=48;
+    if (command > 5){
+      Accelerator = command;
+      Accelerator-=5;
+    }
+    executecommand(command,Accelerator);
+    Serial.print(command);
+  }
+  
+  //desiciones();
 
   //show_sensors();
 
