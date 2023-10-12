@@ -50,16 +50,16 @@ int velocity_backward=150;
 // float K=2.5;  
 
 int reference = 250;
-int z=20;
+int z=40;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 // float Ki = 2*L; //2L
 // float Kd =0.5*L;//0.5L
 // float Kp = 22.5;
 // float Ki = 0;
 //float Kd = 2.5;
-float Kp = 10;
+float Kp = 3;
 float Ki = 0;
-float Kd = 0;
+float Kd = 0.2;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
@@ -178,13 +178,13 @@ void tracking(){
 
   if(salida_control<0) { 
 
-    motores( salida_control, reference );
+    motores( salida_control - z, reference );
 
   } else if(salida_control>0) { 
-    motores(reference, -salida_control);
+    motores(reference, -salida_control - z);
 
   } else {  
-    motores(255 , 255);
+    motores(250 , 250);
     
   }
 }
@@ -197,14 +197,12 @@ void gameStart(){
   if (qtr_left_value==1 && qtr_right_value==1){
     
     tracking();
-    //motores(40,40);
+    //motores(50,50);
     
 
   } else{
     //Serial.println("Get in");
     getIn(qtr_left_value, qtr_right_value);
-   
-   
  
   } 
 }
@@ -215,7 +213,7 @@ void setup() {
     if ( comments == true){
       Serial.begin(9600);
     } 
-     
+ 
 }
 
 
