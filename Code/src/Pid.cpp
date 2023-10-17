@@ -34,7 +34,8 @@ int Pid::calculateError(int* sensorsValues) {
         
         } else {
 
-            return setPoint;
+            return (_numSensors-1)*10;
+            
         
         }
     }

@@ -6,8 +6,8 @@ Qtr::Qtr(int pinNumber) : pin(pinNumber) {
 
 int Qtr::value() {
     int analogReading = analogRead(pin);
-    Serial.println(analogReading);
-    int digitalValue = (analogReading > 600) ? 1 : 0;
-    Serial.println(digitalValue);
+    //Serial.println(analogReading);
+    int digitalValue = (analogReading > 900) ? 1 : 0;
+    //Serial.println(digitalValue);
     return digitalValue;
 }

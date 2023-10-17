@@ -19,6 +19,7 @@ Sharp s3(13, 2); //Sensor_3
 Sharp s4(23, 3); //Sensor_4
 Sharp s5(5, 4); //Sensor_5
 
+
 //Motores
 Motor motor_b(27,26);
 Motor motor_a(33,32);
@@ -35,20 +36,15 @@ bool comments= true;
 int _numSensors=5; //cantidad de sensores usados
 int sensorValues[5];
  
-//PID
+// Qtr - Parámetros
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=600; // Constante de tiempo reversa  total
-int time_backward_twist=400; // constante de tiempo del giro por lo tato menor a time_backward
+int time_backward=300; // Constante de tiempo reversa  total
+int time_backward_twist=50; // constante de tiempo del giro por lo tato menor a time_backward
 int velocity_backward=150;
 
-
-
-// float L=0.01;
-// float T=0.1;
-// float K=2.5;  
-
+//PID
 int reference = 250;
 int z=40;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
@@ -57,11 +53,15 @@ int z=40;
 // float Kp = 22.5;
 // float Ki = 0;
 //float Kd = 2.5;
-float Kp = 3;
+float Kp = 0.10;
 float Ki = 0;
-float Kd = 0.2;
+float Kd = 0;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
+
+//Estrategias
+int pinButton = 12;
+int first = 1;
 
 
 int* getSharpValues() {
@@ -117,30 +117,29 @@ void Twist_reverse(int direction){
   int motorB_velocity =0;
   if (direction==1){
 
-    motorA_velocity=-velocity_backward-40;
-    motorB_velocity=-velocity_backward;
+    motorA_velocity=velocity_backward;
+    motorB_velocity=-velocity_backward-40;
 
-  }
-  else{
+  } else if (direction==0){
     
     motorA_velocity=-velocity_backward;
-    motorB_velocity=-velocity_backward-40;
+    motorB_velocity=velocity_backward + 40;
 
   }
 
   unsigned long startTime = millis();
-  while (millis() - startTime < time_backward ){
+    while (millis() - startTime < time_backward ){
 
 
       if (millis() - startTime < (time_backward-time_backward_twist)) {
-        Serial.println("atras");
+        //Serial.println("atras");
         
         motores(-250,-250);
       // Código para el primer intervalo de reversa
       } else {
         // Código para el intervalo restante de giro en segundos
-        Serial.println("giro");
-        motores(motorA_velocity,motorB_velocity);
+        //Serial.println("giro");
+        motores(motorA_velocity, motorB_velocity);
 
       }  
     }
@@ -164,10 +163,7 @@ void getIn(int qtr_left_value, int qtr_right_value){
     //Serial.println("qtr_left && qtr_right");
     Twist_reverse(1);
       
-  } else {
-    //Serial.println("Caso xd que nunca pasa pero pos mejo");
-    Twist_reverse(1);
-  }
+  } 
 }
 
 
@@ -178,13 +174,13 @@ void tracking(){
 
   if(salida_control<0) { 
 
-    motores( salida_control - z, reference );
+    motores(salida_control - z, reference);
 
   } else if(salida_control>0) { 
     motores(reference, -salida_control - z);
 
   } else {  
-    motores(250 , 250);
+    motores(reference, reference);
     
   }
 }
@@ -210,6 +206,7 @@ void gameStart(){
 void setup() {
   // put your setup code here, to run once:
 
+    pinMode(pinButton, INPUT);
     if ( comments == true){
       Serial.begin(9600);
     } 
@@ -219,17 +216,32 @@ void setup() {
 
 void loop() {
   if (start.getStart()==1){
-  
+
+    if (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 ) {
+
+      first = 1;
+
+      while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 && first == 1) {
+
+        motores(40,40);
+        qtr_left_value = qtr_left.value();
+        qtr_right_value = qtr_right.value();
+
+        if (qtr_left_value==0 || qtr_right_value==0){
+          
+          getIn(qtr_left_value, qtr_right_value);
+    
+        } 
+      }
+
+      first = 0;
+
+    }
+
     gameStart();
-    //tracking();
-    //motores(255, 255);
     
 
   } else {
     motores(0,0);
   }
-
-  //show_sensors();
-
-
 }
