@@ -36,7 +36,6 @@ int Pid::calculateError(int* sensorsValues) {
 
             return (_numSensors-1)*10;
             
-        
         }
     }
 
@@ -50,9 +49,9 @@ float Pid::traking(int* sensorsValues) {
 
     proporcional=(posicion) - setPoint;
     integral = integral + proporcional_pasado;
-    
     derivativo = (proporcional-proporcional_pasado);
-    int ITerm=integral*Ki;
+
+    float ITerm=integral*Ki;
     if(ITerm>=250)ITerm=250;
     if(ITerm<=-250)ITerm=-250;
     

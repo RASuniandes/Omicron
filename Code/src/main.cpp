@@ -175,9 +175,11 @@ void tracking(){
   if(salida_control<0) { 
 
     motores(salida_control - z, reference);
+    //motores(reference, reference + salida_control);
 
   } else if(salida_control>0) { 
     motores(reference, -salida_control - z);
+    //motores(reference - salida_control, reference);
 
   } else {  
     motores(reference, reference);
