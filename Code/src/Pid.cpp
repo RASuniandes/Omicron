@@ -43,9 +43,9 @@ int Pid::calculateError(int* sensorsValues) {
     return last_value;
 }
 
-float Pid::traking(int* sensorsValues) {
+float Pid::traking(int position) {
     
-    posicion = calculateError(sensorsValues);
+    posicion = position;
 
     proporcional=(posicion) - setPoint;
     integral = integral + proporcional_pasado;

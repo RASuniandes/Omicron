@@ -40,9 +40,9 @@ int sensorValues[5];
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=300; // Constante de tiempo reversa  total
-int time_backward_twist=50; // constante de tiempo del giro por lo tato menor a time_backward
-int velocity_backward=150;
+int time_backward=50; // Constante de tiempo reversa  total
+int time_backward_twist=10; // constante de tiempo del giro por lo tato menor a time_backward
+int velocity_backward=200;
 
 //PID
 int reference = 250;
@@ -118,31 +118,33 @@ void Twist_reverse(int direction){
   if (direction==1){
 
     motorA_velocity=velocity_backward;
-    motorB_velocity=-velocity_backward-40;
+    motorB_velocity=-velocity_backward;
 
   } else if (direction==0){
     
     motorA_velocity=-velocity_backward;
-    motorB_velocity=velocity_backward + 40;
+    motorB_velocity=velocity_backward;
 
+  } else {
+    motorA_velocity=velocity_backward;
+    motorB_velocity=-velocity_backward;
   }
 
   unsigned long startTime = millis();
-    while (millis() - startTime < time_backward ){
 
+  while (millis() - startTime < time_backward ){
 
-      if (millis() - startTime < (time_backward-time_backward_twist)) {
-        //Serial.println("atras");
-        
-        motores(-250,-250);
+    if (millis() - startTime < (time_backward - time_backward_twist)) {
+      //Serial.println("atras"); 
+      motores(-250,-250);
       // Código para el primer intervalo de reversa
-      } else {
-        // Código para el intervalo restante de giro en segundos
-        //Serial.println("giro");
-        motores(motorA_velocity, motorB_velocity);
+    } else {
+      // Código para el intervalo restante de giro en segundos
+      //Serial.println("giro");
+      motores(motorA_velocity, motorB_velocity);
 
-      }  
-    }
+    }  
+  }
 }
 
 
@@ -169,7 +171,8 @@ void getIn(int qtr_left_value, int qtr_right_value){
 
 void tracking(){
   int* values = getSharpValues();
-  int salida_control = pid.traking(values);    
+  int position = pid.calculateError(values);
+  int salida_control = pid.traking(position);    
   
 
   if(salida_control<0) { 
@@ -186,6 +189,22 @@ void tracking(){
     
   }
 }
+
+
+void frenos_contorno(int position) {
+  
+  if(position<=0) { 
+
+    motores(position - z, reference);
+
+  } else if(position>=40) { 
+
+    motores(reference, -position - z);
+
+  } 
+
+}
+
 
 void gameStart(){
 
@@ -225,12 +244,13 @@ void loop() {
 
       while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 && first == 1) {
 
-        motores(40,40);
+        motores(45,45);
         qtr_left_value = qtr_left.value();
         qtr_right_value = qtr_right.value();
 
         if (qtr_left_value==0 || qtr_right_value==0){
           
+          motores(-10,-10);
           getIn(qtr_left_value, qtr_right_value);
     
         } 

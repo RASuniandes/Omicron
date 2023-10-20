@@ -23,7 +23,7 @@ private:
 
 public:
     Pid(float cKp, float cKi, float cKd, int cSetPoint, int Vreference, int numSensors);
-    float traking(int* sensors_values);
+    float traking(int position);
     int calculateError(int* sensors_values);
 
 };
