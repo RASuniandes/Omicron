@@ -1,86 +1,65 @@
 #include <Arduino.h>
 #include "Motor.h"
-
+#include "math.h"
 #include "BluetoothSerial.h"
 BluetoothSerial SerialBT;
 
-#define UP "u"
-#define LEFT "l"
-#define DOWN "d"
-#define RIGHT "r"
-
+// variables de recepcion
 int direccion;
 int velocidad;
 int angulo;
-int jaja;
-int Start;
-int xd= 83;
+int jaja;// este valor no significa nada por eso su nombre
 
+// constantes de proporcion
+float L = 0.99; //motor izquierdo
+float R = 1;    //motor derecho
 
-//Motores
-Motor motor_b(27,26);
-Motor motor_a(33,32);
- 
+//variables temporales
+float seno;
+float coseno;
 
-void motores(int speed_m_left, int speed_m_right){
+//variables de los motores
+int vel_left;
+int vel_right;
+
+// Motores
+Motor motor_b(27, 26);
+Motor motor_a(33, 32);
+
+void motores(int speed_m_left, int speed_m_right) {
 
   motor_a.setSpeed(speed_m_left);
   motor_b.setSpeed(speed_m_right);
-  
 }
-
 
 void setup() {
-  // put your setup code here, to run once:
-    Serial.begin(9600);
-    SerialBT.begin("ESP32_test_prod"); //Bluetooth device name
-    Serial.println("The device started, now you can pair it with bluetooth!");
-     
+
+  Serial.begin(9600);
+  SerialBT.begin("ESP32_test_prod"); // incializacion de la conexion bluetooth
+  Serial.println("The device started, now you can pair it with bluetooth!");
 }
 
-void executecommand(int direccion,int velocidad,int angulo,int jaja){
-    int command = direccion;
-    Serial.println("Datos");
-    Serial.println(direccion);
-    Serial.println(velocidad);
-    Serial.println(angulo);
-    Serial.println(jaja);
-  if (direccion == 271 && angulo > 0){  //pa adelante
-
-    motores(velocidad,velocidad);
-    //Serial.print("adelante");
-    }
-  else if (direccion == 271 && 0 > angulo){  //pa adelante
-
-    motores(velocidad,velocidad);
-    //Serial.print("adelante");
-    }
-  else if (direccion == 271){  //pa adelante
-
-    motores(velocidad,velocidad);
-    //Serial.print("adelante");
-    }
-  else if (direccion == 273 && angulo > 0){  //pa atras
-    motores(velocidad,velocidad);
-    //Serial.print("atras");
-    }
-  else if (direccion == 273 && 0 > angulo){  //pa atras
-    motores(velocidad,velocidad);
-    //Serial.print("atras");
-    }
-  else if (direccion == 273){  //pa atras
-    motores(velocidad,velocidad);
-    
+void executecommand(int direccion, int velocidad, int angulo) {
+  angulo = PI*180/angulo;
+  seno = sinf(angulo);
+  coseno = cosf(angulo);
+  vel_right = direccion*velocidad*int(R*coseno + L*-seno);
+  vel_left = direccion*velocidad*int(R*seno + L*coseno);
+  motores(vel_left, vel_right);
 }
 
-
-void loop() {
-  if (SerialBT.available()) {
+void loop()
+{
+  if (SerialBT.available())
+  {
     direccion = SerialBT.read();
     velocidad = SerialBT.read();
     angulo = SerialBT.read();
-    angulo-=88;
-    Serial.print("\n");
-    
-    executecommand(direccion, velocidad, angulo, jaja);}
+    jaja = SerialBT.read();
+    angulo -= 88;
+    direccion -= 272;
+    //Serial.print("\n");
+
+    executecommand(direccion, velocidad, angulo);
   }
+}
