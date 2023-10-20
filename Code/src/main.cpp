@@ -45,35 +45,32 @@ void executecommand(int direccion,int velocidad,int angulo,int jaja){
     Serial.println(velocidad);
     Serial.println(angulo);
     Serial.println(jaja);
-  if (command == 70){  //pa adelante
-    motores(xd,xd);
+  if (direccion == 271 && angulo > 0){  //pa adelante
+
+    motores(velocidad,velocidad);
     //Serial.print("adelante");
     }
-  else if (command == 76){ //pa izquierda 
-    motores(-xd,xd);
+  else if (direccion == 271 && 0 > angulo){  //pa adelante
+
+    motores(velocidad,velocidad);
+    //Serial.print("adelante");
     }
-  else if (command == 71){ //pa diag izquierda
-    motores(-xd/2,xd);
-    } 
-  else if (command == 82){ //pa derecha
-    motores(xd,-xd);
+  else if (direccion == 271){  //pa adelante
+
+    motores(velocidad,velocidad);
+    //Serial.print("adelante");
     }
-  else if (command == 73){ //pa diagderecha
-    motores(xd,-xd/2);
+  else if (direccion == 273 && angulo > 0){  //pa atras
+    motores(velocidad,velocidad);
+    //Serial.print("atras");
     }
-  else if (command == 66){ //pa atras
-    motores(-xd,-xd);
+  else if (direccion == 273 && 0 > angulo){  //pa atras
+    motores(velocidad,velocidad);
+    //Serial.print("atras");
     }
-  else if(command == 83){
-    motores(0,0);}
-  else if(command == 49){
-    xd=0;}
-  else if(command == 53){
-    xd=83;}
-  else if(command == 56){
-    xd=180;}
-  else if(command == 1133535){
-    xd=255;}
+  else if (direccion == 273){  //pa atras
+    motores(velocidad,velocidad);
+    
 }
 
 
@@ -82,7 +79,7 @@ void loop() {
     direccion = SerialBT.read();
     velocidad = SerialBT.read();
     angulo = SerialBT.read();
-    jaja = SerialBT.read();
+    angulo-=88;
     Serial.print("\n");
     
     executecommand(direccion, velocidad, angulo, jaja);}
