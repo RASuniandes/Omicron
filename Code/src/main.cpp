@@ -9,7 +9,10 @@ BluetoothSerial SerialBT;
 #define DOWN "d"
 #define RIGHT "r"
 
-int command;
+int direccion;
+int velocidad;
+int angulo;
+int jaja;
 int Start;
 int xd= 83;
 
@@ -35,9 +38,13 @@ void setup() {
      
 }
 
-void executecommand(int command){
-    Serial.print(command);
-    Serial.print(xd);
+void executecommand(int direccion,int velocidad,int angulo,int jaja){
+    int command = direccion;
+    Serial.println("Datos");
+    Serial.println(direccion);
+    Serial.println(velocidad);
+    Serial.println(angulo);
+    Serial.println(jaja);
   if (command == 70){  //pa adelante
     motores(xd,xd);
     //Serial.print("adelante");
@@ -72,8 +79,11 @@ void executecommand(int command){
 
 void loop() {
   if (SerialBT.available()) {
-    command = SerialBT.read();
+    direccion = SerialBT.read();
+    velocidad = SerialBT.read();
+    angulo = SerialBT.read();
+    jaja = SerialBT.read();
     Serial.print("\n");
     
-    executecommand(command);}
+    executecommand(direccion, velocidad, angulo, jaja);}
   }
