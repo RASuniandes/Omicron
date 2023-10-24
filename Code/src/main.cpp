@@ -40,12 +40,15 @@ int sensorValues[5];
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=50; // Constante de tiempo reversa  total
-int time_backward_twist=10; // constante de tiempo del giro por lo tato menor a time_backward
+int time_backward=250; // Constante de tiempo reversa  total
+int time_backward_twist=110; // constante de tiempo del giro por lo tato menor a time_backward
 int velocity_backward=200;
 
+int motorA_velocity=0;
+int motorB_velocity=0;
+
 //PID
-int reference = 250;
+int reference = 255;
 int z=40;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 // float Ki = 2*L; //2L
@@ -53,7 +56,7 @@ int z=40;
 // float Kp = 22.5;
 // float Ki = 0;
 //float Kd = 2.5;
-float Kp = 0.10;
+float Kp = 0.1;
 float Ki = 0;
 float Kd = 0;
 
@@ -113,8 +116,6 @@ void show_sensors(){
 void Twist_reverse(int direction){
 
   // si direction es igual 0 es qtr_left
-  int motorA_velocity =0;
-  int motorB_velocity =0;
   if (direction==1){
 
     motorA_velocity=velocity_backward;
@@ -150,17 +151,17 @@ void Twist_reverse(int direction){
 
 void getIn(int qtr_left_value, int qtr_right_value){
 
+  motores(-10,-10);
+
   if (qtr_right_value == 0 && qtr_left_value ==1) {
     //Serial.println("qtr_right");
-    Twist_reverse(1); 
-  }
-        
-  else if (qtr_right_value == 1 && qtr_left_value ==0) {
-    //Serial.println("qtr_left");
-    Twist_reverse(0);
-  }
+    Twist_reverse(0); 
 
-  else if (qtr_right_value == 0 && qtr_left_value == 0){
+  } else if (qtr_right_value == 1 && qtr_left_value ==0) {
+    //Serial.println("qtr_left");
+    Twist_reverse(1);
+
+  } else if (qtr_right_value == 0 && qtr_left_value == 0){
 
     //Serial.println("qtr_left && qtr_right");
     Twist_reverse(1);
@@ -250,7 +251,6 @@ void loop() {
 
         if (qtr_left_value==0 || qtr_right_value==0){
           
-          motores(-10,-10);
           getIn(qtr_left_value, qtr_right_value);
     
         } 
