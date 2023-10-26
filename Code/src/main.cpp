@@ -22,7 +22,7 @@ Sharp s5(5, 4); //Sensor_5
 
 //Motores
 Motor motor_b(27,26);
-Motor motor_a(33,32);
+Motor motor_a(32,33);
 
 
 
@@ -57,8 +57,8 @@ int z=40;
 // float Ki = 0;
 //float Kd = 2.5;
 float Kp = 0.1;
-float Ki = 0;
-float Kd = 0;
+float Ki = 0.0001;
+float Kd = 0.12;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
@@ -170,6 +170,22 @@ void getIn(int qtr_left_value, int qtr_right_value){
 }
 
 
+
+void frenos_contorno(int position) {
+  
+  if(position<=0) { 
+
+    motores(position - z, reference);
+
+  } else if(position>=40) { 
+
+    motores(reference, -position - z);
+
+  } 
+
+}
+
+
 void tracking(){
   int* values = getSharpValues();
   int position = pid.calculateError(values);
@@ -189,21 +205,8 @@ void tracking(){
     motores(reference, reference);
     
   }
-}
 
-
-void frenos_contorno(int position) {
-  
-  if(position<=0) { 
-
-    motores(position - z, reference);
-
-  } else if(position>=40) { 
-
-    motores(reference, -position - z);
-
-  } 
-
+  frenos_contorno(position);
 }
 
 
