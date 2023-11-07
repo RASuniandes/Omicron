@@ -53,18 +53,17 @@ int z=40;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 // float Ki = 2*L; //2L
 // float Kd =0.5*L;//0.5L
-// float Kp = 22.5;
-// float Ki = 0;
-//float Kd = 2.5;
+
 float Kp = 0.1;
-float Ki = 0.0001;
-float Kd = 0.12;
+float Ki = 0;
+float Kd = 0;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
 //Estrategias
 int pinButton = 12;
 int first = 1;
+int strategy_number = 0;
 
 
 int* getSharpValues() {
@@ -76,6 +75,7 @@ int* getSharpValues() {
   sensorValues[4] = s5.readValue();  
   return sensorValues;
 }
+
 
 void motores(int speed_m_left, int speed_m_right){
   Serial.print("motorA SPEED: ");
@@ -170,7 +170,6 @@ void getIn(int qtr_left_value, int qtr_right_value){
 }
 
 
-
 void frenos_contorno(int position) {
   
   if(position<=0) { 
@@ -218,7 +217,6 @@ void gameStart(){
   if (qtr_left_value==1 && qtr_right_value==1){
     
     tracking();
-    //motores(50,50);
     
 
   } else{
@@ -226,6 +224,40 @@ void gameStart(){
     getIn(qtr_left_value, qtr_right_value);
  
   } 
+}
+
+
+void strategy(int strategy) {
+  if (strategy == 0) {
+
+    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+
+      motores(45,45);
+      qtr_left_value = qtr_left.value();
+      qtr_right_value = qtr_right.value();
+
+      if (qtr_left_value==0 || qtr_right_value==0){
+        getIn(qtr_left_value, qtr_right_value);
+      } 
+    }
+
+  } else if (strategy == 1) {
+
+      while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+
+        motores(60,60);
+        delay(10);
+        motores(0, 0);
+
+        if (qtr_left_value==0 || qtr_right_value==0){
+          getIn(qtr_left_value, qtr_right_value);
+        } 
+
+      } 
+
+  } else if (strategy == 2) {
+
+  }
 }
 
 void setup() {
@@ -240,24 +272,15 @@ void setup() {
 
 
 void loop() {
+
+
   if (start.getStart()==1){
 
     if (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 ) {
 
       first = 1;
 
-      while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 && first == 1) {
-
-        motores(45,45);
-        qtr_left_value = qtr_left.value();
-        qtr_right_value = qtr_right.value();
-
-        if (qtr_left_value==0 || qtr_right_value==0){
-          
-          getIn(qtr_left_value, qtr_right_value);
-    
-        } 
-      }
+      strategy(strategy_number);
 
       first = 0;
 
@@ -267,6 +290,13 @@ void loop() {
     
 
   } else {
+    
     motores(0,0);
+
+    strategy_number += digitalRead(pinButton);
+
+    if (strategy_number > 5) {
+      strategy_number = 0;
+    }
   }
 }
