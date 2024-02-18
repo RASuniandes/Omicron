@@ -21,35 +21,35 @@ Sharp s5(5, 4); //Sensor_5
 
 
 //Motores
-Motor motor_b(27,26);
-Motor motor_a(32,33);
+Motor motor_b(27, 26);
+Motor motor_a(32, 33);
 
 
 
 //Starter 
-Starter start(21,14);
+Starter start(21, 14);
 
 //Comentarios
-bool comments= true;
+bool comments = true;
 
 //Otras Variables auxiliares
-int _numSensors=5; //cantidad de sensores usados
+int _numSensors = 5; //cantidad de sensores usados
 int sensorValues[5];
- 
+
 // Qtr - Parámetros
 unsigned long time_motores = 0;
 bool get_in = false;
 
-int time_backward=250; // Constante de tiempo reversa  total
-int time_backward_twist=110; // constante de tiempo del giro por lo tato menor a time_backward
-int velocity_backward=200;
+int time_backward = 250; // Constante de tiempo reversa  total
+int time_backward_twist = 110; // constante de tiempo del giro por lo tato menor a time_backward
+int velocity_backward = 200;
 
-int motorA_velocity=0;
-int motorB_velocity=0;
+int motorA_velocity = 0;
+int motorB_velocity = 0;
 
 //PID
 int reference = 255;
-int z=40;
+int z = 40;
 // float Kp = 1.2*(T/(K*L)); //1.2 *(T)/KL
 // float Ki = 2*L; //2L
 // float Kd =0.5*L;//0.5L
@@ -65,19 +65,34 @@ int pinButton = 12;
 int first = 1;
 int strategy_number = 0;
 
+------------------------------------------------------------
 
+/**
+ * @brief Obtiene los valores de los sensores.
+ *
+ * Esta función lee los valores de los sensores s1, s2, s3, s4 y s5 y los guarda en un arreglo.
+ *
+ * @return Puntero al arreglo de valores de los sensores.
+ */
 int* getSharpValues() {
 
   sensorValues[0] = s1.readValue();
   sensorValues[1] = s2.readValue();
   sensorValues[2] = s3.readValue();
   sensorValues[3] = s4.readValue();
-  sensorValues[4] = s5.readValue();  
+  sensorValues[4] = s5.readValue();
   return sensorValues;
 }
 
+------------------------------------------------------------
 
-void motores(int speed_m_left, int speed_m_right){
+/**
+ * @brief Configura la velocidad de los motores y muestra la velocidad en el puerto serie.
+ *
+ * @param speed_m_left Velocidad del motor izquierdo.
+ * @param speed_m_right Velocidad del motor derecho.
+ */
+void motores(int speed_m_left, int speed_m_right) {
   Serial.print("motorA SPEED: ");
   Serial.println(speed_m_left);
 
@@ -86,11 +101,15 @@ void motores(int speed_m_left, int speed_m_right){
 
   motor_a.setSpeed(speed_m_left);
   motor_b.setSpeed(speed_m_right);
-  
 }
 
+------------------------------------------------------------
 
-void show_sensors(){
+/**
+ * Muestra los valores de los sensores.
+ * Imprime los valores de los sensores qtr_lef, qtr_right, s1, s2, s3, s4, s5, Starter y Stop en el monitor serie.
+ */
+void show_sensors() {
   Serial.print("qtr_lef: ");
   Serial.print(qtr_left_value);
   Serial.print("  qtr_right: ");
@@ -109,174 +128,249 @@ void show_sensors(){
   Serial.println(start.getStart());
   Serial.print("Stop: ");
   Serial.println(start.getStop());
-
 }
 
+------------------------------------------------------------
 
-void Twist_reverse(int direction){
+/**
+ * Función que realiza un giro en reversa según la dirección especificada.
+ * 
+ * @param direction Dirección del giro en reversa. Si es igual a 1, se realiza un giro hacia la izquierda (qtr_left).
+ *                  Si es igual a 0, se realiza un giro hacia la derecha.
+ *                  Si es diferente de 0 y 1, se realiza un giro hacia la izquierda (qtr_left) por defecto.
+ */
+void Twist_reverse(int direction) {
 
   // si direction es igual 0 es qtr_left
-  if (direction==1){
+  if (direction == 1) {
 
-    motorA_velocity=velocity_backward;
-    motorB_velocity=-velocity_backward;
+    motorA_velocity = velocity_backward;
+    motorB_velocity = -velocity_backward;
 
-  } else if (direction==0){
-    
-    motorA_velocity=-velocity_backward;
-    motorB_velocity=velocity_backward;
+  }
+  else if (direction == 0) {
 
-  } else {
-    motorA_velocity=velocity_backward;
-    motorB_velocity=-velocity_backward;
+    motorA_velocity = -velocity_backward;
+    motorB_velocity = velocity_backward;
+
+  }
+  else {
+    motorA_velocity = velocity_backward;
+    motorB_velocity = -velocity_backward;
   }
 
   unsigned long startTime = millis();
 
-  while (millis() - startTime < time_backward ){
+  while (millis() - startTime < time_backward) {
 
     if (millis() - startTime < (time_backward - time_backward_twist)) {
       //Serial.println("atras"); 
-      motores(-250,-250);
+      motores(-250, -250);
       // Código para el primer intervalo de reversa
-    } else {
+    }
+    else {
       // Código para el intervalo restante de giro en segundos
       //Serial.println("giro");
       motores(motorA_velocity, motorB_velocity);
 
-    }  
+    }
   }
 }
 
+------------------------------------------------------------
 
-void getIn(int qtr_left_value, int qtr_right_value){
+/**
+ * Función que controla el comportamiento del robot cuando se encuentra en la etapa de ingreso.
+ * 
+ * @param qtr_left_value Valor del sensor izquierdo de línea.
+ * @param qtr_right_value Valor del sensor derecho de línea.
+ */
+void getIn(int qtr_left_value, int qtr_right_value) {
 
-  motores(-10,-10);
+  motores(-10, -10);
 
-  if (qtr_right_value == 0 && qtr_left_value ==1) {
+  if (qtr_right_value == 0 && qtr_left_value == 1) {
     //Serial.println("qtr_right");
-    Twist_reverse(0); 
+    Twist_reverse(0);
 
-  } else if (qtr_right_value == 1 && qtr_left_value ==0) {
+  }
+  else if (qtr_right_value == 1 && qtr_left_value == 0) {
     //Serial.println("qtr_left");
     Twist_reverse(1);
 
-  } else if (qtr_right_value == 0 && qtr_left_value == 0){
+  }
+  else if (qtr_right_value == 0 && qtr_left_value == 0) {
 
     //Serial.println("qtr_left && qtr_right");
     Twist_reverse(1);
-      
-  } 
+
+  }
 }
 
+------------------------------------------------------------
 
+/**
+ * @brief Función que controla los frenos del contorno.
+ * 
+ * Esta función ajusta los frenos del contorno de acuerdo a la posición recibida como parámetro.
+ * Si la posición es menor o igual a cero, se ajustan los motores con la posición menos z y la referencia.
+ * Si la posición es mayor o igual a 40, se ajustan los motores con la referencia y la posición negativa menos z.
+ * 
+ * @param position La posición del contorno.
+ */
 void frenos_contorno(int position) {
-  
-  if(position<=0) { 
+
+  if (position <= 0) {
 
     motores(position - z, reference);
 
-  } else if(position>=40) { 
+  }
+  else if (position >= 40) {
 
     motores(reference, -position - z);
 
-  } 
+  }
 
 }
 
+------------------------------------------------------------
 
-void tracking(){
+/**
+ * Realiza el seguimiento del objeto en movimiento.
+ * Calcula el error de posición utilizando los valores obtenidos de los sensores.
+ * Aplica el control PID para obtener la salida de control.
+ * Ajusta los motores según la salida de control obtenida.
+ * Aplica frenos de contorno según la posición del objeto.
+ */
+void tracking() {
   int* values = getSharpValues();
   int position = pid.calculateError(values);
-  int salida_control = pid.traking(position);    
-  
+  int salida_control = pid.traking(position);
 
-  if(salida_control<0) { 
+
+  if (salida_control < 0) {
 
     motores(salida_control - z, reference);
     //motores(reference, reference + salida_control);
 
-  } else if(salida_control>0) { 
+  }
+  else if (salida_control > 0) {
     motores(reference, -salida_control - z);
     //motores(reference - salida_control, reference);
 
-  } else {  
+  }
+  else {
     motores(reference, reference);
-    
+
   }
 
   frenos_contorno(position);
 }
 
+------------------------------------------------------------
 
-void gameStart(){
+/**
+ * Función que inicia el juego.
+ * 
+ * Esta función verifica los valores de los sensores qtr_left y qtr_right.
+ * Si ambos sensores tienen un valor de 1, se llama a la función tracking().
+ * En caso contrario, se llama a la función getIn() pasando los valores de los sensores como argumentos.
+ */
+void gameStart() {
 
   qtr_left_value = qtr_left.value();
   qtr_right_value = qtr_right.value();
 
-  if (qtr_left_value==1 && qtr_right_value==1){
-    
-    tracking();
-    
+  if (qtr_left_value == 1 && qtr_right_value == 1) {
 
-  } else{
+    tracking();
+
+
+  }
+  else {
     //Serial.println("Get in");
     getIn(qtr_left_value, qtr_right_value);
- 
-  } 
+
+  }
 }
 
+------------------------------------------------------------
 
+/**
+ * Ejecuta una estrategia específica según el valor de la variable 'strategy'.
+ * 
+ * @param strategy El valor de la estrategia a ejecutar.
+ */
 void strategy(int strategy) {
   if (strategy == 0) {
 
     while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
 
-      motores(45,45);
+      motores(45, 45);
       qtr_left_value = qtr_left.value();
       qtr_right_value = qtr_right.value();
 
-      if (qtr_left_value==0 || qtr_right_value==0){
+      if (qtr_left_value == 0 || qtr_right_value == 0) {
         getIn(qtr_left_value, qtr_right_value);
-      } 
+      }
     }
 
-  } else if (strategy == 1) {
+  }
+  else if (strategy == 1) {
 
-      while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
 
-        motores(60,60);
-        delay(10);
-        motores(0, 0);
+      motores(60, 60);
+      delay(10);
+      motores(0, 0);
 
-        if (qtr_left_value==0 || qtr_right_value==0){
-          getIn(qtr_left_value, qtr_right_value);
-        } 
+      if (qtr_left_value == 0 || qtr_right_value == 0) {
+        getIn(qtr_left_value, qtr_right_value);
+      }
 
-      } 
+    }
 
-  } else if (strategy == 2) {
+  }
+  else if (strategy == 2) {
 
   }
 }
 
+------------------------------------------------------------
+
+/**
+ * @brief Configura el entorno inicial del programa.
+ * 
+ * Esta función se ejecuta una vez al inicio del programa y se utiliza para configurar
+ * los pines y los dispositivos necesarios.
+ */
 void setup() {
   // put your setup code here, to run once:
 
-    pinMode(pinButton, INPUT);
-    if ( comments == true){
-      Serial.begin(9600);
-    } 
- 
+  pinMode(pinButton, INPUT);
+  if (comments == true) {
+    Serial.begin(9600);
+  }
+
 }
 
+------------------------------------------------------------
 
+/**
+ * @brief Función principal del programa que se ejecuta en un bucle infinito.
+ * 
+ * La función loop se encarga de controlar el flujo principal del programa. 
+ * Verifica si se ha iniciado el juego y si todos los sensores están en estado bajo (0). 
+ * En caso afirmativo, se ejecuta la estrategia correspondiente y se reinicia el juego. 
+ * Si el juego no ha iniciado, se detienen los motores y se permite cambiar la estrategia 
+ * utilizando un botón. 
+ */
 void loop() {
 
 
-  if (start.getStart()==1){
+  if (start.getStart() == 1) {
 
-    if (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0 ) {
+    if (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
 
       first = 1;
 
@@ -287,11 +381,12 @@ void loop() {
     }
 
     gameStart();
-    
 
-  } else {
-    
-    motores(0,0);
+
+  }
+  else {
+
+    motores(0, 0);
 
     strategy_number += digitalRead(pinButton);
 
