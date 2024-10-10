@@ -3,6 +3,8 @@
 Motor::Motor(int pinA, int pinB) : inPinA(pinA), inPinB(pinB) {
     pinMode(inPinA, OUTPUT);
     pinMode(inPinB, OUTPUT);
+    digitalWrite(inPinA, LOW);
+    digitalWrite(inPinB, LOW);
 }
 
 /**
@@ -16,14 +18,19 @@ void Motor::setSpeed(int speed) {
 
     if (speed > 0) {
         analogWrite(inPinA, speed);
-        analogWrite(inPinB, 0);
+        digitalWrite(inPinB, LOW);
     }
     else if (speed < 0) {
-        analogWrite(inPinA, 0);
+        digitalWrite(inPinA, LOW);
         analogWrite(inPinB, -speed);
     }
     else {
-        analogWrite(inPinA, 0);
-        analogWrite(inPinB, 0);
+        digitalWrite(inPinA, LOW);
+        digitalWrite(inPinB, LOW);
     }
+}
+
+void Motor::brake() {
+    digitalWrite(inPinA, HIGH);
+    digitalWrite(inPinB, HIGH);
 }

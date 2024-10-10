@@ -28,6 +28,7 @@ class Motor {
      * @param speed La velocidad del motor.
      */
     void setSpeed(int speed);
+    void brake();
 };
 
 #endif

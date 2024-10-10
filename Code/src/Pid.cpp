@@ -47,18 +47,17 @@ float Pid::traking(int position) {
 
     posicion = position;
 
-    proporcional = (posicion)-setPoint;
+    proporcional = setPoint - (posicion);
     integral = integral + proporcional_pasado;
     derivativo = (proporcional - proporcional_pasado);
 
     float ITerm = integral * Ki;
-    if (ITerm >= 250)ITerm = 250;
-    if (ITerm <= -250)ITerm = -250;
+    ITerm = constrain(ITerm, -250, 250);
 
     salida_control = (proporcional * Kp) + (derivativo * Kd) + ITerm;
 
-    if (salida_control > reference) salida_control = reference;
-    if (salida_control < -reference) salida_control = -reference;
+    // Saturador del la salida del controlador
+    salida_control = constrain(salida_control, -reference, reference);
 
     proporcional_pasado = proporcional;
 
