@@ -11,8 +11,6 @@ Qtr::Qtr(int pinNumber) : pin(pinNumber) {
  */
 int Qtr::value() {
     int analogReading = analogRead(pin);
-    //Serial.println(analogReading);
     int digitalValue = (analogReading > 1700) ? 1 : 0;
-    //Serial.println(digitalValue);
     return digitalValue;
 }

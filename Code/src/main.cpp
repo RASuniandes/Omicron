@@ -12,6 +12,7 @@ Qtr qtr_right(25);
 int qtr_left_value;
 int qtr_right_value;
 
+
 // Sharps sensors
 Sharp s1(18, 0); //Sensor_1
 Sharp s2(19, 1); //Sensor_2
@@ -42,24 +43,19 @@ int time_backward = 200; // Constante de tiempo reversa  total
 int time_backward_twist = 180; // constante de tiempo del giro por lo tato menor a time_backward
 int velocity_backward = 240;
 
-int motorA_velocity = 0;
-int motorB_velocity = 0;
+int motorA_velocity = 0, motorB_velocity = 0;
 
 //PID
 int reference = 255;
 int sensibility = 140;
-int attack_velocity = 180;
+int attack_velocity = 255;
 
-
-float Kp = 3;
-float Ki = 0;
-float Kd = 0;
+float Kp = 3, Ki = 0, Kd = 0;
 
 Pid pid(Kp, Ki, Kd, 20, reference, _numSensors);
 
 //Estrategias
 int pinButton = 12;
-int first = 1;
 int strategy_number = 0;
 
 /**
@@ -173,7 +169,8 @@ void Twist_reverse(int direction) {
 
 void getIn(int qtr_left_value, int qtr_right_value) {
 
-  dynamic_brake();
+  // dynamic_brake();
+  engines(-20, -20);
 
   delay(300);
 
@@ -204,7 +201,7 @@ void getIn(int qtr_left_value, int qtr_right_value) {
  * 
  * @param position La posición del contorno.
  */
-void frenos_contorno(int position) {
+void contour_brakes(int position) {
 
   if (position <= -20) {
     engines(sensibility, -sensibility);
@@ -239,12 +236,12 @@ void tracking() {
     engines(attack_velocity, attack_velocity);
   }
 
-  frenos_contorno(position);
+  contour_brakes(position);
 }
 
 
 /**
- * Función que inicia el juego.
+ * Función que ataca al oponente.
  * 
  * Esta función verifica los valores de los sensores qtr_left y qtr_right.
  * Si ambos sensores tienen un valor de 1, se llama a la función tracking().
@@ -264,6 +261,9 @@ void attack() {
 
 }
 
+bool enemy_on_line() {
+  return s1.readValue() == 0 || s2.readValue() == 0 || s3.readValue() == 0 || s4.readValue() == 0 || s5.readValue() == 0;
+}
 /**
  * Ejecuta una estrategia específica según el valor de la variable 'strategy'.
  * 
@@ -274,7 +274,7 @@ void strategy(int strategy) {
   switch (strategy)
   {
   case 0:
-    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+    while (!enemy_on_line()) {
 
       engines(50, 50);
       qtr_left_value = qtr_left.value();
@@ -289,7 +289,7 @@ void strategy(int strategy) {
     break;
   
   case 1:
-    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+    while (!enemy_on_line()) {
 
         engines(60, 60);
         delay(100);
@@ -306,13 +306,13 @@ void strategy(int strategy) {
     break;
 
   case 2:
-    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+    while (!enemy_on_line()) {
 
-      engines(70, 60);
+      engines(120, 100);
       delay(200);
-      engines(70, 70);
+      engines(120, 120);
       delay(200);
-      engines(70, 80);
+      engines(100, 120);
       delay(200);
 
       qtr_left_value = qtr_left.value();
@@ -327,7 +327,7 @@ void strategy(int strategy) {
 
   case 3:
 
-    while (s1.readValue() == 0 && s2.readValue() == 0 && s3.readValue() == 0 && s4.readValue() == 0 && s5.readValue() == 0) {
+    while (!enemy_on_line()) {
 
       qtr_left_value = qtr_left.value();
       qtr_right_value = qtr_right.value();
@@ -358,12 +358,10 @@ void setup() {
   // put your setup code here, to run once:
 
   strategy_number = 0;
-
   pinMode(pinButton, INPUT);
   if (comments == true) {
     Serial.begin(9600);
   }
-
 
 }
 
@@ -379,18 +377,15 @@ void setup() {
  */
 void loop() {
 
-  if (start.getStart() == 1) {
+  if (start.getStart() == 1 && start.getStop() == 0) {
 
     strategy(strategy_number);
     
   } else {
 
-    engines(0, 0);
-  
-    strategy_number =  strategy_number + digitalRead(pinButton);
+    engines(0, 0);  
+    strategy_number > 5 ? strategy_number = 0: strategy_number=strategy_number + digitalRead(pinButton);
     delay(300);
-    if (strategy_number > 5) strategy_number = 0;
-    
   }
 
   delayMicroseconds(100);

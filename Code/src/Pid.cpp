@@ -1,7 +1,8 @@
 #include "Pid.h"
 #include "Motor.h"
 
-Pid::Pid(float cKp, float cKi, float cKd, int cSetPoint, int Vreference, int numSensors) : Kp(cKp), Ki(cKi), Kd(cKd), setPoint(cSetPoint), _numSensors(numSensors), reference(Vreference), proporcional(0), integral(0), derivativo(0), proporcional_pasado(0), salida_control(0), posicion(0), last_value(0) {
+Pid::Pid(float cKp, float cKi, float cKd, int cSetPoint, int Vreference, int numSensors) : Kp(cKp), Ki(cKi), Kd(cKd), setPoint(cSetPoint), _numSensors(numSensors), reference(Vreference), proportional (0), integral(0), derivative(0), proportional_past
+(0), control_output(0), position(0), last_value(0) {
 
 }
 
@@ -40,26 +41,26 @@ int Pid::calculateError(int* sensorsValues) {
 /**
  * Calcula la salida de control del controlador PID para seguir una posición objetivo.
  *
- * @param position La posición actual del sistema.
+ * @param sensors La posición actual del sistema.
  * @return La salida de control calculada por el controlador PID.
  */
-float Pid::traking(int position) {
+float Pid::traking(int sensors) {
 
-    posicion = position;
+    position = sensors;
 
-    proporcional = setPoint - (posicion);
-    integral = integral + proporcional_pasado;
-    derivativo = (proporcional - proporcional_pasado);
+    proportional  = setPoint - (position);
+    integral = integral + proportional_past;
+    derivative = (proportional  - proportional_past);
 
     float ITerm = integral * Ki;
     ITerm = constrain(ITerm, -250, 250);
 
-    salida_control = (proporcional * Kp) + (derivativo * Kd) + ITerm;
+    control_output = (proportional  * Kp) + (derivative * Kd) + ITerm;
 
     // Saturador del la salida del controlador
-    salida_control = constrain(salida_control, -reference, reference);
+    control_output = constrain(control_output, -reference, reference);
 
-    proporcional_pasado = proporcional;
+    proportional_past = proportional;
 
-    return salida_control;
+    return control_output;
 }

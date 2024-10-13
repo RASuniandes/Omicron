@@ -15,21 +15,21 @@ class Pid {
     int _numSensors;
     int setPoint;
     int reference;
-    int posicion;
-    int proporcional;
+    int position;
+    int proportional ;
     int integral;
-    int derivativo;
-    int proporcional_pasado;
-    float salida_control;
+    int derivative;
+    int proportional_past;
+    float control_output;
     int last_value;
 
 
     public:
     /**
      * @brief Constructor de la clase Pid.
-     * @param cKp Valor del coeficiente proporcional.
+     * @param cKp Valor del coeficiente proportional .
      * @param cKi Valor del coeficiente integral.
-     * @param cKd Valor del coeficiente derivativo.
+     * @param cKd Valor del coeficiente derivative.
      * @param cSetPoint Valor del punto de consigna.
      * @param Vreference Valor de referencia.
      * @param numSensors Número de sensores.
